@@ -4,24 +4,43 @@ import { Link } from "react-router-dom";
 
 const Users = () => {
     const [users, setUsers] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        getUsers();
-    }, []);
+        getUsers(currentPage);
+    }, [currentPage]);
 
-    const getUsers = () => {
+    const getUsers = (page) => {
         setLoading(true);
         axiosClient
-            .get("/users")
-            .then(({ data }) => {
+            .get(`/users?page=${page}`)
+            .then((res) => {
+                const { data, meta } = res.data;
                 setLoading(false);
-                setUsers(data.data);
-                console.log(data);
+                setUsers(data);
+
+                setCurrentPage(meta.current_page);
+                setTotalPages(meta.last_page);
+
+                console.log({ data, meta });
             })
             .catch(() => {
                 setLoading(false);
             });
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
     };
 
     const deleteUser = (user) => {
@@ -74,7 +93,7 @@ const Users = () => {
                         <tbody>
                             {users.map((user) => {
                                 return (
-                                    <tr>
+                                    <tr key={user.id}>
                                         <td>{user.id}</td>
                                         <td>{user.name}</td>
                                         <td>{user.email}</td>
@@ -102,6 +121,34 @@ const Users = () => {
                         </tbody>
                     )}
                 </table>
+            </div>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                }}
+            >
+                {currentPage > 1 ? (
+                    <button onClick={handlePreviousPage} className="btn-add">
+                        Previous
+                    </button>
+                ) : (
+                    <p
+                        style={{ backgroundColor: "transparent" }}
+                        className="btn-add"
+                    ></p>
+                )}
+                {currentPage == totalPages ? (
+                    <p
+                        style={{ backgroundColor: "transparent" }}
+                        className="btn-add"
+                    ></p>
+                ) : (
+                    <button onClick={handleNextPage} className="btn-add">
+                        Next
+                    </button>
+                )}
             </div>
         </div>
     );
