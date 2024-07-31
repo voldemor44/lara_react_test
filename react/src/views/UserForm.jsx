@@ -39,7 +39,8 @@ const UserForm = () => {
         } else {
             axiosClient
                 .post("/users", user)
-                .then(() => {
+                .then((res) => {
+                    console.log(res.data);
                     setNotification("User was successfully created ");
                     navigate("/users");
                 })

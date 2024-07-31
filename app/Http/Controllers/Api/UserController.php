@@ -33,7 +33,8 @@ class UserController extends Controller
         $user = User::create($data);
 
         // Retourne en réponse l'utilisateur créé et avec un statut 201
-        return response(new UserResource($user), 201);
+        $user = new UserResource($user);
+        return response([$user], 201);
     }
 
     /**
